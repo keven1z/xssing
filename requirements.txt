@@ -1,0 +1,4 @@
+requests==2.22.0
+bs4==0.0.1
+pyppeteer==0.0.25
+progressbar2

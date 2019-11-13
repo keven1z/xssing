@@ -1,0 +1,53 @@
+<!--
+context:边界对应上下文的位置
+type: 注入类型
+    1：内联注入
+    2：块注入
+    3：代码注入
+-->
+<root>
+    <boundary>
+        <context>1,5,6</context>
+        <type>2</type>
+        <prefix>&lt;/[TAG]&gt;</prefix>
+    </boundary>
+    <boundary>
+        <context>1,5,6</context>
+        <type>2</type>
+        <prefix>&lt;%2f[TAG]&gt;</prefix>
+    </boundary>
+    <boundary>
+        <context>6</context>
+        <type>3</type>
+        <prefix>';</prefix>
+        <suffix>;//</suffix>
+    </boundary>
+    <boundary>
+        <context>2,3,7</context>
+        <type>1</type>
+        <prefix>'</prefix>
+        <suffix>'</suffix>
+    </boundary>
+    <boundary>
+        <context>2,3,7</context>
+        <type>1</type>
+        <prefix>"</prefix>
+        <suffix>"</suffix>
+    </boundary>
+    <boundary>
+        <context>2,3,7</context>
+        <type>2</type>
+        <prefix>'&gt;</prefix>
+    </boundary>
+    <boundary>
+        <context>2,3,7</context>
+        <type>2</type>
+        <prefix>"&gt;</prefix>
+    </boundary>
+    <boundary>
+        <context>4</context>
+        <type>2</type>
+        <prefix>--&gt;</prefix>
+        <suffix>&lt;--</suffix>
+    </boundary>
+</root>

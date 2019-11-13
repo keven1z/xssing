@@ -1,0 +1,29 @@
+<root>
+    <function>
+        <name>(?)($)</name>
+    </function>
+    <function>
+        <name>(?)`$`</name>
+    </function>
+    <function>
+        <name>a=?,a($)</name>
+    </function>
+    <function>
+        <name>top['?']($)</name>
+    </function>
+    <function>
+        <name>self['?']($)</name>
+    </function>
+    <function>
+        <name>parent['?']($)</name>
+    </function>
+    <function>
+        <name>frame['?']($)</name>
+    </function>
+    <function>
+        <name>content['?']($)</name>
+    </function>
+    <function>
+        <name>window['?']($)</name>
+    </function>
+</root>

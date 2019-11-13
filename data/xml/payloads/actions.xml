@@ -1,0 +1,43 @@
+<!--
+    supported:支持的标签
+    unsupported：该action不支持的标签
+    trigger：触发的方式
+        1：点击
+        2：自动触发
+        3: 需要添加额外的属性
+    extra: 触发该标签需要增加额外的属性
+-->
+<root>
+    <action>
+        <name>onload</name>
+        <supported>body|iframe|svg</supported>
+        <trigger>2</trigger>
+    </action>
+    <action>
+        <name>onmouseover</name>
+        <unsupported>base|bdo|br|head|html|iframe|meta|param|script|style|title|button|input|object</unsupported>
+        <trigger>1</trigger>
+    </action>
+    <action>
+        <name>onclick</name>
+        <unsupported>base|bdo|br|head|html|iframe|meta|param|script|style|title|button|object</unsupported>
+        <trigger>1</trigger>
+    </action>
+    <action>
+        <name>ontoggle</name>
+        <supported>details</supported>
+        <trigger>3</trigger>
+        <extra>open</extra>
+    </action>
+    <action>
+        <name>onerror</name>
+        <supported>img|video|audio</supported>
+        <trigger>3</trigger>
+        <extra>src=1</extra>
+    </action>
+    <action>
+        <name>onfocus</name>
+        <unsupported>base|bdo|br|head|html|iframe|meta|param|script|style|title|button|input|object|img</unsupported>
+        <trigger>1</trigger>
+    </action>
+</root>
