@@ -57,4 +57,4 @@ Optimization:
 
 ```
 ## EXAMPLE
-![example](./img/example.png)
+![example](img/example.png)
