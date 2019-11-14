@@ -11,7 +11,7 @@ def cmdLineParser(argv=None):
     parser.add_argument("--version", dest="showVersion", action="store_true",
                         help="Show program's version number and exit")
     parser.add_argument("-v", dest="verbose", type=int,
-                        help="Verbosity level: 0-1 (default 0)")
+                        help="Verbosity level: 0-1 (default 0)", default=0)
     # Target options
     target = parser.add_argument_group("Target",
                                        "At least one of these options has to be provided to define the target(s)")
@@ -69,7 +69,7 @@ def cmdLineParser(argv=None):
     try:
         (args, _) = parser.parse_known_args(argv) if hasattr(parser, "parse_known_args") else parser.parse_args(argv)
     except SystemExit:
-        raise
+        raise SystemExit(0)
     url = args.url
     if url is not None:
         args.url = url if any(str(url).startswith(_) for _ in ("http", "https")) else "http://" + url

@@ -58,7 +58,7 @@ def main():
     try:
         start()
     except Exception as ex:
-        raise SystemExit(ex)
+        raise RuntimeError(ex)
 
 
 if __name__ == "__main__":
@@ -67,7 +67,11 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     except SystemExit as e:
+        pass
+    except RuntimeError as e:
         logger.critical(e)
+        import traceback
+        logger.critical(traceback.format_exc())
     except Exception as e:
         logger.critical(e)
         import traceback

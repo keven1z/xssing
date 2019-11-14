@@ -117,3 +117,5 @@ LEVEL_PAYLOAD = 9
 
 XSS_MESSAGE = '9'
 XSS_USERAGENT = {'User-Agent': 'xssing(%s)_for_test' % VERSION}
+# 探测位置字符串
+DETECTOR = '$parameter$'

@@ -69,7 +69,7 @@ class Checker(object):
                 return False
 
     def positionCheck(self):
-        payload = '[parameter]'
+        payload = DETECTOR
         payload = Agent.payload(payload)
         target = copy.deepcopy(self.wrappedUrl)
         place = self.place

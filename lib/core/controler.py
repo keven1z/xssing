@@ -111,10 +111,11 @@ def injection(target, place, parameter):
                     testXss = True
                     xss_drive.clear()
                     if not conf.test_all:
-                        msg = 'Found xss in %s parameter(%s)' % (place.value, parameter)
-                        logger.info(msg)
                         if bar is not None:
                             bar.finish()
+                        time.sleep(0.2)
+                        msg = 'Found xss in %s parameter(%s)' % (place.value, parameter)
+                        logger.info(msg)
                         return testXss
             except KeyboardInterrupt:
                 raise KeyboardInterrupt

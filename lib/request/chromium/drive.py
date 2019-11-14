@@ -109,7 +109,6 @@ class HeadlessRequest(object):
         await page.setCookie(*cookies) if cookies is not None else None
         try:
             response = await page.goto(url)
-            print(await response.text())
             await self.after_request(page)
             await page.waitFor(100)
             return response
