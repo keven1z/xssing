@@ -49,7 +49,7 @@ def cmdLineParser(argv=None):
     detection.add_argument("--test-all", dest="test_all", action="store_true", default=False,
                            help="test all payload")
     detection.add_argument("--level", dest="level", type=int,
-                           help="Level of tests to perform (1-2, default %d)" % 1)
+                           help="Level of tests to perform (1-2, default %d)" % 1, default=1)
     # Optimization options
     optimization = parser.add_argument_group("Optimization",
                                              "These options can be used to optimize the performance of xssing")

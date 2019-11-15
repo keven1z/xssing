@@ -81,7 +81,9 @@ def gen_code():
 
 def gen_pseudo_protocol(position, prefix='', suffix=''):
     '''
-    :param position:
+    :param suffix: 前缀
+    :param prefix: 后缀
+    :param position:位置信息
     :return: 生成伪协议的payload
     '''
     if isinstance(position, Position):
@@ -90,9 +92,9 @@ def gen_pseudo_protocol(position, prefix='', suffix=''):
             func = randomStr(2)
             payload_dict = AttribDict()
             function = function_handler(function, func)
-            original_payload = Agent.payload(prefix + PSEUDO_PROTOCOL_NAME + function + suffix)
+            original_payload = Agent.payload(prefix + PSEUDO_PROTOCOL_NAME + ':' + function + suffix)
             payload_dict.payload = Agent.payload(
-                prefix + pseudo_protocol_handler(PSEUDO_PROTOCOL_NAME) + function + suffix)
+                prefix + pseudo_protocol_handler(PSEUDO_PROTOCOL_NAME) + ':' + function + suffix)
             payload_dict.func = func
             payload_dict.trigger = '%s[%s=\'%s\']' % (position.tag.name, position.attr, original_payload)
             payloads.append(payload_dict)
@@ -177,8 +179,8 @@ def function_handler(function, func_name):
 def pseudo_protocol_handler(protocol_name):
     # 若检测等级大于1，对伪协议进行随机的html编码
     if conf.level > 1:
-        from lib.core.common import random_htmlencode
-        return urllib.parse.quote(random_htmlencode(protocol_name))
+        from lib.core.common import random_escape
+        return urllib.parse.quote(random_escape(protocol_name))
     else:
         return protocol_name
 

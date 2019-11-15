@@ -162,9 +162,9 @@ def readInput(message, default=None, boolean=False):
     return retVal or ""
 
 
-def random_htmlencode(parameter):
+def random_escape(parameter):
     '''
-    随机对一个字符进行html编码
+    随机对一个字符进行转义
     :param parameter:
     :return:
     '''
@@ -177,4 +177,3 @@ def random_htmlencode(parameter):
         return parameter[:index] + encode_element + parameter[index + 1:]
     else:
         raise TypeError('htmlencode must be str,not %s' % type(parameter))
-

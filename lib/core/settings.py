@@ -111,7 +111,7 @@ TAG: Tuple[str, str, str, str, str] = (
 )
 
 # 伪协议
-PSEUDO_PROTOCOL_NAME = 'javascript:'
+PSEUDO_PROTOCOL_NAME = 'javascript'
 # 日志等级
 LEVEL_PAYLOAD = 9
 
