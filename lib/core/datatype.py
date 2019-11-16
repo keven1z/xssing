@@ -1,4 +1,4 @@
-import collections
+from lib.core.settings import ENCODE_NONE
 import copy
 import types
 
@@ -118,3 +118,46 @@ class Position(object):
     @attr.setter
     def attr(self, attr):
         self._attr = attr
+
+
+class Payload(object):
+    def __init__(self):
+        self._func = None
+        self._value = None
+        self._trigger = None
+        self._encode = ENCODE_NONE
+
+    @property
+    def func(self):
+        return self._func
+
+    @func.setter
+    def func(self, func):
+        self._func = func
+
+    @property
+    def encode(self):
+        return self._encode
+
+    @encode.setter
+    def encode(self, encode):
+        self._encode = encode
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
+
+    @property
+    def trigger(self):
+        return self._trigger
+
+    @trigger.setter
+    def trigger(self, trigger):
+        self._trigger = trigger
+
+    def __str__(self):
+        return self.value

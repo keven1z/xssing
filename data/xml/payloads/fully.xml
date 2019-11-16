@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <!DOCTYPE root [
         <!ELEMENT root (fully+)>
-        <!ELEMENT fully (context | type | payload | decode)+>
+        <!ELEMENT fully (context | type | payload | decode| trigger)+>
         <!ELEMENT context (#PCDATA)>
         <!ELEMENT type (#PCDATA)>
         <!ELEMENT payload (#PCDATA)>
         <!ELEMENT decode (#PCDATA)>
+        <!ELEMENT trigger (#PCDATA)>
         ]>
 <root>
     <fully>
@@ -43,5 +44,12 @@
         <type>2</type>
         <payload>&lt;script ~~~&gt;?($)&lt;/script ~~~'&gt;</payload>
         <decode>0</decode>
+    </fully>
+    <fully>
+        <context>1,2,3,4,5</context>
+        <type>2</type>
+        <payload>&lt;a href="javascript:?($)"&gt;x&lt;/a&gt;</payload>
+        <decode>0</decode>
+        <trigger>a[href="javascript:?($)"]</trigger>
     </fully>
 </root>

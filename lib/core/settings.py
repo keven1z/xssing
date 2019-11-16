@@ -1,7 +1,7 @@
 # coding=utf-8
 from typing import Tuple
 
-VERSION = "2.0"
+VERSION = "2.1.2"
 AUTHOR = "x1001"
 BANNER = '''                 _             
                 (_)            
@@ -119,3 +119,7 @@ XSS_MESSAGE = '9'
 XSS_USERAGENT = {'User-Agent': 'xssing(%s)_for_test' % VERSION}
 # 探测位置字符串
 DETECTOR = '$parameter$'
+
+# payload编码
+ENCODE_NONE = None
+ENCODE_URL = 'url'

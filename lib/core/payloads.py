@@ -2,8 +2,9 @@
 import os
 from lib.core.data import kb, conf
 from lib.core.settings import PAYLOAD_XML_FILES, INLINE, CODE, BLOCK, TAG, XSS_MESSAGE, PSEUDO_PROTOCOL, \
-    PSEUDO_PROTOCOL_NAME, BLOCK_BOUNDARY, INLINE_BOUNDARY, INLINE_PSEUDO_PROTOCOL_BOUNDARY
+    PSEUDO_PROTOCOL_NAME, BLOCK_BOUNDARY, INLINE_BOUNDARY, INLINE_PSEUDO_PROTOCOL_BOUNDARY, ENCODE_URL, ENCODE_NONE
 from lib.core.data import paths
+from lib.core.datatype import Payload
 from lib.core.exceptions import XssingInstallationException
 from lib.core.common import randomStr, absoluteUrlEncode
 from xml.etree import ElementTree as et
@@ -15,7 +16,19 @@ import urllib.parse
 class Agent(object):
     @staticmethod
     def payload(payload):
-        payload = conf.prefix + payload + conf.suffix
+        if isinstance(payload, Payload):
+            f = func = randomStr(4)
+            msg = XSS_MESSAGE
+            encode = payload.encode
+            if payload.trigger is not None:
+                payload.trigger = payload.trigger.replace('?', f).replace('$', msg)
+            if encode == ENCODE_URL:
+                f = absoluteUrlEncode(func)
+                msg = absoluteUrlEncode(msg)
+            payload.func = func
+            payload.value = payload.value.replace('?', f).replace('$', msg)
+            payload.value = conf.prefix + payload.value + conf.suffix
+
         return payload
 
 
@@ -24,30 +37,37 @@ def getPayload(position):
     if len(kb.boundaries) == 0:
         return None
     for boundary in kb.boundaries:
-        if isinstance(boundary, str):
+        if not isinstance(boundary, str):
+            suffix = boundary.suffix if 'suffix' in boundary else ''
+            prefix = boundary.prefix
+            # 添加边界的前缀后缀
+            payloads += genPayload(boundary.type, position)
+            for payload_obj in payloads:
+                payload_obj.value = prefix + payload_obj.value + suffix
+        else:
             payloads += genPayload(type=BLOCK) if boundary == BLOCK_BOUNDARY else []
             payloads += genPayload(type=PSEUDO_PROTOCOL,
                                    position=position) if boundary == INLINE_PSEUDO_PROTOCOL_BOUNDARY else []
             payloads += gen_function(position) if boundary == INLINE_BOUNDARY else []
-        else:
-            suffix = boundary.suffix if 'suffix' in boundary else ''
-            prefix = boundary.prefix
-            payloads += genPayload(boundary.type, position, prefix=prefix, suffix=suffix)
-    return payloads
+    abs_payloads = []
+    for payload in payloads:
+        payload = Agent.payload(payload)
+        abs_payloads.append(payload)
+    return abs_payloads
 
 
-def genPayload(type, position=None, prefix='', suffix=''):
+def genPayload(type, position=None):
     payloads = []
     if BLOCK in type:
         # 获取完整html tag，添加到payload中
-        payloads = payloads + genFullyTag(prefix, suffix)
-        payloads = payloads + gen_block(prefix, suffix)
+        payloads = payloads + genFullyTag()
+        payloads = payloads + gen_block()
     if INLINE in type:
-        payloads += gen_inline(position, prefix, suffix)
+        payloads += gen_inline(position)
     if CODE in type:
         payloads += gen_code()
     if PSEUDO_PROTOCOL in type:
-        payloads += gen_pseudo_protocol(position, prefix, suffix)
+        payloads += gen_pseudo_protocol(position)
     return payloads
 
 
@@ -55,31 +75,24 @@ def gen_function(position):
     tag = position.tag
     payloads = []
     if 'id' in tag.attrs:
-        payload_dict = AttribDict()
-        payload_dict.trigger = '#' + tag.attrs['id']
+        payload_obj = Payload()
+        payload_obj.trigger = '#' + tag.attrs['id']
         for function in conf.functions:
-            func = randomStr(2)
-            function = function_handler(function, func)
-            payload_dict.payload = function
-            payload_dict.func = func
-            payloads.append(payload_dict)
+            payload_obj.value = function.name
+            payloads.append(payload_obj)
     return payloads
 
 
 def gen_code():
     payloads = []
     for function in conf.functions:
-        func = randomStr(2)
-        payload_dict = AttribDict()
-        function = function_handler(function, func)
-        payload = Agent.payload(function)
-        payload_dict.payload = payload
-        payload_dict.func = func
-        payloads.append(payload_dict)
+        payload_obj = Payload()
+        payload_obj.value = function.name
+        payloads.append(payload_obj)
     return payloads
 
 
-def gen_pseudo_protocol(position, prefix='', suffix=''):
+def gen_pseudo_protocol(position):
     '''
     :param suffix: 前缀
     :param prefix: 后缀
@@ -89,42 +102,35 @@ def gen_pseudo_protocol(position, prefix='', suffix=''):
     if isinstance(position, Position):
         payloads = []
         for function in conf.functions:
-            func = randomStr(2)
-            payload_dict = AttribDict()
-            function = function_handler(function, func)
-            original_payload = Agent.payload(prefix + PSEUDO_PROTOCOL_NAME + ':' + function + suffix)
-            payload_dict.payload = Agent.payload(
-                prefix + pseudo_protocol_handler(PSEUDO_PROTOCOL_NAME) + ':' + function + suffix)
-            payload_dict.func = func
-            payload_dict.trigger = '%s[%s=\'%s\']' % (position.tag.name, position.attr, original_payload)
-            payloads.append(payload_dict)
+            payload_obj = Payload()
+            original_payload = PSEUDO_PROTOCOL_NAME + ':' + function.name
+            payload_obj.value = Agent.payload(
+                pseudo_protocol_handler(PSEUDO_PROTOCOL_NAME) + ':' + function.name)
+            payload_obj.trigger = '%s[%s=\'%s\']' % (position.tag.name, position.attr, original_payload)
+            payloads.append(payload_obj)
         return payloads
 
 
-def gen_inline(position, prefix, suffix):
+def gen_inline(position):
     payloads = []
     # 当前漏洞所在标签的名字
     tag = position.tag
     name = tag.name
     for function in conf.functions:
-        func = randomStr(1)
-        content = randomStr(2)
-        function = function_handler(function, func)
         for action in conf.actions:
-            payload_dict = AttribDict()
-            payload = content + prefix + ' '
+            payload_obj = Payload()
             if 'supported' in action:
                 if name in action.supported:
-                    payload += action.name
+                    value = action.name
                 else:
                     continue
-            elif 'unsupported' in action:
+            else:
                 if name not in action.unsupported:
-                    payload += action.name
+                    value = action.name
                 else:
                     continue
 
-            payload += '=%s' % function
+            value += '=%s' % function.name
 
             if action.trigger == '1':
                 # 如果标签本身存在id，使用标签id
@@ -132,21 +138,18 @@ def gen_inline(position, prefix, suffix):
                     id = tag.attrs['id']
                 else:
                     id = randomStr(3)
-                payload += ' id=\'%s\'' % (id)
-                payload_dict.trigger = '#' + id
+                value += ' id=\'%s\'' % id
+                payload_obj.trigger = '#' + id
             elif action.trigger == '3':
-                payload += ' ' + action.extra
-            payload_dict.payload = Agent.payload(payload) + suffix
-            payload_dict.func = func
-            payloads.append(payload_dict)
+                value += ' ' + action.extra
+            payload_obj.value = value
+            payloads.append(payload_obj)
     return payloads
 
 
-def gen_block(prefix, suffix):
+def gen_block():
     payloads = []
     for function in conf.functions:
-        func = randomStr(1)
-        function = function_handler(function, func)
         for action in conf.actions:
             name = action.name
             tags = []
@@ -157,23 +160,17 @@ def gen_block(prefix, suffix):
                     if _ not in action.unsupported:
                         tags.append(_)
             for tag in tags:
-                payload_dict = AttribDict()
-                payload = prefix + '<' + tag
+                payload_obj = Payload()
+                value = '<' + tag
                 if action.trigger == '1':
                     id = randomStr(3)
-                    payload = payload + ' id=\'%s\'' % (id)
-                    payload_dict.trigger = '#' + id
+                    value = value + ' id=\'%s\'' % id
+                    payload_obj.trigger = '#' + id
                 elif action.trigger == '3':
-                    payload = payload + ' ' + action.extra
-                payload_dict.payload = payload + ' ' + name + '=' + function + ' />' + suffix
-                payload_dict.func = func
-                payloads.append(payload_dict)
+                    value = value + ' ' + action.extra
+                payload_obj.value = value + ' ' + name + '=' + function.name + ' />'
+                payloads.append(payload_obj)
     return payloads
-
-
-def function_handler(function, func_name):
-    function = function.name.replace('?', func_name).replace('$', XSS_MESSAGE)
-    return function
 
 
 def pseudo_protocol_handler(protocol_name):
@@ -185,7 +182,7 @@ def pseudo_protocol_handler(protocol_name):
         return protocol_name
 
 
-def genFullyTag(prefix, suffix):
+def genFullyTag():
     '''
     :param prefix: 前缀
     :param suffix: 后缀
@@ -193,19 +190,13 @@ def genFullyTag(prefix, suffix):
     '''
     payloads = []
     for tag in conf.fully:
-        func = randomStr(1)
-        payload_dict = AttribDict()
-        payload = tag.payload
-        payload_dict.func = func
-        msg = XSS_MESSAGE
+        payload_obj = Payload()
+        payload_obj.value = tag.payload
         if 'decode' in tag and tag.decode == 'url':
-            func = absoluteUrlEncode(func)
-            msg = absoluteUrlEncode(str(XSS_MESSAGE))
-        else:
-            func = urllib.parse.quote(func)
-        payload = prefix + payload.replace('?', func).replace('$', msg) + suffix
-        payload_dict.payload = payload
-        payloads.append(payload_dict)
+            payload_obj.encode = ENCODE_URL
+        if 'trigger' in tag:
+            payload_obj.trigger = tag.trigger
+        payloads.append(payload_obj)
     return payloads
 
 

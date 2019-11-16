@@ -92,13 +92,12 @@ def injection(target, place, parameter):
             bar = progressbar.ProgressBar(prefix="payload testing", max_value=progressbar.UnknownLength)
         for payload in payloads:
             if conf.verbose >= 1:
-                logger.payload(payload.payload)
+                logger.payload(payload.value)
             else:
                 i += 1
                 bar.update(i)
-            target = payloadCombined(target, place, parameter, payload.payload)
-            trigger = payload.trigger if 'trigger' in payload else None
-            xss_info = {'trigger': trigger, 'func': payload.func, 'payload': payload.payload}
+            target = payloadCombined(target, place, parameter, payload.value)
+            xss_info = {'trigger': payload.trigger, 'func': payload.func, 'payload': payload.value}
             target.kwargs.update(xss_info)
 
             try:
@@ -106,7 +105,7 @@ def injection(target, place, parameter):
                 time.sleep(conf.sleep)
                 xss_drive.request(target)
                 if xss_drive.is_exist_xss():
-                    paramKey = (target, place.value, parameter, payload.payload)
+                    paramKey = (target, place.value, parameter, payload.value)
                     kb.testedParamed.append(paramKey)
                     testXss = True
                     xss_drive.clear()
