@@ -5,8 +5,10 @@ from lib.core.common import findParameterName, dataToStdout, readInput
 from lib.core.payloads import getPayload
 from lib.request.chromium.exec import ChromiumRequestError
 from lib.request.xssdrive import XSSCheckRequest
+from lib.request.chromium.drive import run_browser
 import progressbar
 import time
+import asyncio
 
 
 def start():
@@ -61,6 +63,13 @@ def scan(target):
 def injection(target, place, parameter):
     testXss = False
     payloads_dict = dict()
+    loop = asyncio.get_event_loop()
+    browser = loop.run_until_complete(run_browser())
+    xss_drive = XSSCheckRequest(browser)
+
+    def request(target):
+        loop.run_until_complete(xss_drive.request(target))
+
     for position in kb.positions:
         info = 'heuristic (basic) test shows that %s parameter \'%s\' position(%s)' % (
             place.value, parameter, position.line)
@@ -81,7 +90,6 @@ def injection(target, place, parameter):
         return False
     payloads_sorted = sorted(payloads_dict.items(), key=lambda item: len(item[1]))
 
-    xss_drive = XSSCheckRequest()
     for payload in payloads_sorted:
         position = payload[0]
         payloads = payload[1]
@@ -102,8 +110,9 @@ def injection(target, place, parameter):
 
             try:
                 # 请求前睡眠时间
+                time.sleep(0.2)
                 time.sleep(conf.sleep)
-                xss_drive.request(target)
+                request(target)
                 if xss_drive.is_exist_xss():
                     paramKey = (target, place.value, parameter, payload.value)
                     kb.testedParamed.append(paramKey)
@@ -115,6 +124,7 @@ def injection(target, place, parameter):
                         time.sleep(0.2)
                         msg = 'Found xss in %s parameter(%s)' % (place.value, parameter)
                         logger.info(msg)
+                        browser.close()
                         return testXss
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
@@ -122,6 +132,7 @@ def injection(target, place, parameter):
                 logger.debug(e)
         if bar is not None:
             bar.finish()
+    browser.close()
     return testXss
 
 

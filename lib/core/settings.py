@@ -1,7 +1,7 @@
 # coding=utf-8
 from typing import Tuple
 
-VERSION = "2.1.2"
+VERSION = "2.1.0"
 AUTHOR = "x1001"
 BANNER = '''                 _             
                 (_)            

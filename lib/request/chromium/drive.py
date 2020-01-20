@@ -5,28 +5,29 @@ from lib.request.chromium.exec import InvalidURL, ConnectionError, ChromiumReque
 from urllib.parse import urlparse, urlunparse
 import asyncio
 from lib.request.url import WrappedUrl
-from asyncio import InvalidStateError,coroutine
+from asyncio import InvalidStateError, coroutine
+
 POST = 'POST'
 GET = 'GET'
 TIMEOUT = 1000
 
 
 async def run_browser():
-    browser = await launch(headless=True, ignoreHTTPSErrors=True, autoClose=False,
+    browser = await launch(headless=True, ignoreHTTPSErrors=True, autoClose=True,
                            args=['--disable-xss-auditor', '--no-sandbox'])
     return browser
 
 
 class HeadlessRequest(object):
 
-    def __init__(self):
-        self.loop = asyncio.get_event_loop()
+    def __init__(self, browser):
+        self.browser = browser
 
     def request(self, wrappedUrl):
         try:
             if isinstance(wrappedUrl, WrappedUrl):
                 task = asyncio.wait_for(self.pre_request(wrappedUrl.url, **wrappedUrl.kwargs), 2000)
-                return self.loop.run_until_complete(task)
+                return task
         except KeyboardInterrupt:
             raise KeyboardInterrupt
         except RuntimeError:
@@ -98,8 +99,8 @@ class HeadlessRequest(object):
     async def fetch(self, url, method, cookies=None, body=None, headers=None):
         if headers is None:
             headers = {}
-        browser = await run_browser()
-        page = await browser.newPage()
+        # browser = await run_browser()
+        page = await self.browser.newPage()
         await page.setRequestInterception(True)
         await self.before_request(page)
         # 禁止弹出框
@@ -119,7 +120,7 @@ class HeadlessRequest(object):
         except InvalidStateError:
             raise ConnectionError('The URL(%s) connect error' % url)
         finally:
-            await browser.close()
+            page.close()
 
     async def before_request(self, page):
         pass
@@ -211,4 +212,3 @@ class PrepareRequest(object):
             for header in headers.items():
                 name, value = header
                 self.headers[name] = value
-

@@ -4,8 +4,8 @@ from lib.core.settings import XSS_MESSAGE
 
 
 class XSSCheckRequest(HeadlessRequest):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, browser):
+        super().__init__(browser)
         self.func = None
         self.msg = None
         self.trigger = None
