@@ -32,9 +32,9 @@ class Checker(object):
         target = copy.deepcopy(self.wrappedUrl)
         place = self.place
         parameter = self.parameter
-        infoMsg = "testing connection to the target URL(%s)" % self.wrappedUrl.url
+        infoMsg = "Testing  URL: %s " % self.wrappedUrl.url
         logger.info(infoMsg)
-        msg = 'target URL(%s) ' % self.wrappedUrl.url
+        msg = '%s ' % self.wrappedUrl.url
         payload = randomStr(length=6)
         target = payloadCombined(target=target, place=place, parameter=parameter, payload=payload)
         try:
@@ -60,12 +60,10 @@ class Checker(object):
                 return False
             page = resp.text
             if payload in page:
-                msg += 'connection test pass'
-                logger.info(msg)
                 return True
             else:
                 msg += 'random parameter value(%s) does not appear in the response text' % payload
-                logger.info(msg)
+                logger.warn(msg)
                 return False
 
     def positionCheck(self):
@@ -111,11 +109,15 @@ def _heuristicCheckXss(target, place, parameter, position, boundaries):
         u_boundaries.append(INLINE_PSEUDO_PROTOCOL_BOUNDARY)
     if position.pos == POSITION.EVE_ATTR_INSIDE:
         u_boundaries.append(INLINE_BOUNDARY)
+    if position.pos == POSITION.LABEL_INSIDE:
+        u_boundaries.append(INLINE)
     for b in boundaries:
         if str(position.pos.name) in POS and str(POS[str(position.pos.name)]) in b.context:
             # 若位置在标签内，且是则需要闭合标签
             ran = randomStr(2)
             if BLOCK in b.type and position.pos in (POSITION.JS_VALUE, POSITION.JS_COMMENT, POSITION.LABEL_INSIDE):
+                if position.tag is None:
+                    return u_boundaries
                 # 判断位置在js值、js注释、属性内，并且标签需要闭合，边界增加闭合操作
                 if position.tag.name.lower() in CLOSED_LABEL:
                     payload = b.prefix = b.prefix.replace(REPLACE_TAG, position.tag.name)

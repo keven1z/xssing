@@ -110,6 +110,12 @@ TAG: Tuple[str, str, str, str, str] = (
     'object'
 )
 
+# "Things" that can be used before > e.g. <tag attr=value%0dx>
+lFillings = ('', '%0dx')
+# "Things" to use between event handler and = or between function and =
+eFillings = ('%09', '%0a', '%0d',  '+')
+fillings = ('%09', '%0a', '%0d', '/+/')
+
 # 伪协议
 PSEUDO_PROTOCOL_NAME = 'javascript'
 # 日志等级

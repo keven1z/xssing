@@ -104,6 +104,12 @@ class BlockChecker(PositionChecker):
                 position.tag = parent_tag
                 position.pos = POSITION.LABEL_INSIDE
                 positions.append(position)
+        if payload in bs4.string:
+            position = Position()
+            position.pos = POSITION.LABEL_INSIDE
+            position.line = bs4.string
+            position.tag = None
+            positions.append(position)
         return positions
 
 

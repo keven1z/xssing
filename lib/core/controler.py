@@ -26,7 +26,7 @@ def scan(target):
         logger.error('Not Found injection parameter from %s' % target.url)
     for place in kb.places:
         for parameter in kb.parameters:
-            logger.info("testing %s parameter '%s'" % (place.value, parameter))
+            logger.info("Testing  parameter: %s '%s'" % (place.value, parameter))
             checker = Checker(target, place, parameter)
             count -= 1
             if not checker.basicCheckXSS():
@@ -34,15 +34,14 @@ def scan(target):
             # 位置检测
             checker.positionCheck()
 
-            if len(kb.positions) > 0:
-                message = "%s parameter '%s' is existed in（" % (place.value, parameter)
-                for pos in kb.positions:
-                    message = message + str(pos.line) + ','
-                message = message + ')'
-                logger.info(message)
-            else:
-                message = "%s parameter '%s' has no injection position" % (place.value, parameter)
-                logger.warn(message)
+            # if len(kb.positions) > 0:
+            #     for pos in kb.positions:
+            #         message = message + str(pos.line) + ','
+            #     message = message + ')'
+            #     logger.info(message)
+            # else:
+            #     message = "%s parameter '%s' has no injection position" % (place.value, parameter)
+            #     logger.warn(message)
 
             if injection(target, place, parameter):
                 if count != 0:
